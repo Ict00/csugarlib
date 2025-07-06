@@ -26,22 +26,25 @@ drawctx_t* make_drawctx(int width, int height) {
 	return ctx;
 }
 
+void fill_background(drawctx_t *ctx) {
+	for (int x = 0; x < ctx->width; ++x) {
+		for (int z = 0; z < ctx->height; ++z) {
+			set_pixel(ctx, make_pixel(x, z));
+		}
+	}
+}
+
 void free_drawctx(drawctx_t *ctx) {
 	if (!ctx->initialized) return;
 	free(ctx->pixels);
 	free(ctx);
 }
 
-pixel_t* make_pixel(int x, int z) {
-	pixel_t* null_pixel = (pixel_t*)smalloc(sizeof(pixel_t));
-	null_pixel->bg_null = true;
-	null_pixel->fg_null = true;
-	null_pixel->x = x;
-	null_pixel->z = z;
-	null_pixel->bg = (color_t){0,0,0};
-	null_pixel->fg = (color_t){0,0,0};
-	null_pixel->print = ' ';
-	return null_pixel;
+pixel_t make_pixel(int x, int z) {
+	return (pixel_t){
+		.x = x, .z = z, .bg_null = true, .fg_null = true,
+		.bg = (color_t){0,0,0}, .fg = (color_t){0,0,0}, .print = ' '
+	};
 }
 
 void add_fg(pixel_t* pixel, int r, int g, int b) {

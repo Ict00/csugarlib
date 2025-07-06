@@ -30,9 +30,11 @@ struct {
 
 drawctx_t* make_drawctx(int width, int height);
 
+void fill_background(drawctx_t* ctx);
+
 void free_drawctx(drawctx_t* ctx);
 
-pixel_t* make_pixel(int x, int z); 
+pixel_t make_pixel(int x, int z); 
 
 void add_fg(pixel_t* pixel, int r, int g, int b);
 
