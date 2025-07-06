@@ -65,6 +65,30 @@ void set_print(pixel_t *pixel, char to_print) {
 	pixel->print = to_print;
 }
 
+pixel_t p_add_fg(pixel_t pixel, int r, int g, int b) {
+	if (is_color_invalid(r, g, b)) return pixel;	
+	
+	pixel.fg_null = false;
+	pixel.fg = (color_t){r, g, b};
+
+	return pixel;
+}
+
+pixel_t p_add_bg(pixel_t pixel, int r, int g, int b) {
+	if (is_color_invalid(r, g, b)) return pixel;
+	
+	pixel.bg_null = false;
+	pixel.bg = (color_t){r, g, b};
+
+	return pixel;
+}
+
+pixel_t p_set_print(pixel_t pixel, char to_print) {
+	pixel.print = to_print;
+
+	return pixel;
+}
+
 void free_pixel(pixel_t *pixel) {
 	free(pixel);
 }

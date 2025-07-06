@@ -36,6 +36,12 @@ void free_drawctx(drawctx_t* ctx);
 
 pixel_t make_pixel(int x, int z); 
 
+pixel_t p_add_fg(pixel_t pixel, int r, int g, int b);
+
+pixel_t p_add_bg(pixel_t pixel, int r, int g, int b);
+
+pixel_t p_set_print(pixel_t pixel, char to_print);
+
 void add_fg(pixel_t* pixel, int r, int g, int b);
 
 void add_bg(pixel_t* pixel, int r, int g, int b);
