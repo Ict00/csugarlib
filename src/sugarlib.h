@@ -53,3 +53,5 @@ void free_pixel(pixel_t* pixel);
 void set_pixel(drawctx_t* ctx, pixel_t pixel);
 
 void flush_ctx(drawctx_t* ctx, bool clear);
+
+drawctx_t* copy_ctx(const drawctx_t* source);

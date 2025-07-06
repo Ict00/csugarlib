@@ -1,5 +1,6 @@
 #include "sugarlib.h"
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -130,4 +131,20 @@ void flush_ctx(drawctx_t *ctx, bool clear) {
 					p.print);
 		}
 	}
+}
+
+drawctx_t* copy_ctx(const drawctx_t *source) {
+	if (!source || !source->initialized) return NULL;
+
+	drawctx_t* newCtx = (drawctx_t*)smalloc(sizeof(drawctx_t));
+	newCtx->width = source->width;
+	newCtx->height = source->height;
+	newCtx->initialized = source->initialized;
+
+	const size_t pixel_count = source->width * source->height;
+	newCtx->pixels = (pixel_t*)smalloc(sizeof(pixel_t) * pixel_count);
+
+	memcpy(newCtx->pixels, source->pixels, sizeof(pixel_t) * pixel_count);	
+
+	return newCtx;
 }
