@@ -52,6 +52,14 @@ void free_pixel(pixel_t* pixel);
 
 void set_pixel(drawctx_t* ctx, pixel_t pixel);
 
-void flush_ctx(drawctx_t* ctx, bool clear);
+void get_pixel(const drawctx_t* ctx, pixel_t* out, int x, int z);
+
+void get_pixel2(const drawctx_t* ctx, pixel_t* out, int pos);
+
+void flush_ctx(drawctx_t* ctx);
 
 drawctx_t* copy_ctx(const drawctx_t* source);
+
+void ctx_over_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
+
+void ctx_sub_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
