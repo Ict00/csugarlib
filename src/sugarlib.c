@@ -174,6 +174,12 @@ drawctx_t* copy_ctx(const drawctx_t *source) {
 	return newCtx;
 }
 
+pixel_t copy_pixel(const pixel_t *source) {
+	return p_set_print(
+		p_add_bg(
+		p_add_fg(make_pixel(source->x, source->z), source->fg.r, source->fg.g, source->fg.b), source->bg.r, source->bg.g, source->bg.b), source->print);
+}
+
 void ctx_over_ctx(drawctx_t *to_change, const drawctx_t overlay, int xo, int zo) {
 	if(!to_change->initialized || !overlay.initialized) return;
 

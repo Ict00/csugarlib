@@ -64,6 +64,8 @@ void flush_ctx(drawctx_t* ctx);
 
 drawctx_t* copy_ctx(const drawctx_t* source);
 
+pixel_t copy_pixel(const pixel_t* source);
+
 void ctx_over_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
 
 void ctx_sub_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
