@@ -129,8 +129,6 @@ setnullout:
 void flush_ctx(drawctx_t *ctx) {
 	if (!ctx->initialized) return;
 	
-	printf("\x1b[H");
-	
 	size_t pos = 0;
 
 	for (size_t i = 0; i < ctx->width*ctx->height; i++) {
