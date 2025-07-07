@@ -28,6 +28,10 @@ struct {
 	bool initialized;
 } typedef drawctx_t;
 
+typedef void (*ctx_shader)(drawctx_t*);
+
+typedef void (*pixel_shader)(pixel_t*);
+
 drawctx_t* make_drawctx(int width, int height);
 
 void fill_background(drawctx_t* ctx);
@@ -63,3 +67,7 @@ drawctx_t* copy_ctx(const drawctx_t* source);
 void ctx_over_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
 
 void ctx_sub_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
+
+void apply_ctx_shader(drawctx_t* changed_ctx, ctx_shader shader);
+
+void apply_pix_shader(drawctx_t* source_ctx, pixel_shader shader);
