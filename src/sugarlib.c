@@ -236,10 +236,12 @@ void ctx_sub_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo) 
 }
 
 void apply_ctx_shader(drawctx_t *changed_ctx, ctx_shader shader) {
+	if (!shader) return;
 	shader(changed_ctx);
 }
 
 void apply_pix_shader(drawctx_t *source_ctx, pixel_shader shader) {
+	if (!shader) return;
 	for (int i = 0; i < source_ctx->width * source_ctx->height; ++i) {
 		shader(&source_ctx->pixels[i]);	
 	}
