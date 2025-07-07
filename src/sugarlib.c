@@ -35,6 +35,14 @@ void fill_background(drawctx_t *ctx) {
 	}
 }
 
+void fill_with(drawctx_t *ctx, color_t color, int xo, int zo, int xw, int zh) {
+	for (int x = xo; x < ctx->width && x < xw + xo; ++x) {
+		for (int z = zo; z < ctx->height && z < zh + zo; ++z) {
+			set_pixel(ctx, p_add_bg(make_pixel(x, z), color.r, color.g, color.b));
+		}
+	}
+}
+
 void free_drawctx(drawctx_t *ctx) {
 	if (!ctx->initialized) return;
 	free(ctx->pixels);
@@ -44,13 +52,15 @@ void free_drawctx(drawctx_t *ctx) {
 pixel_t make_pixel(int x, int z) {
 	return (pixel_t){
 		.x = x, .z = z, .bg_null = true, .fg_null = true,
-		.bg = (color_t){0,0,0}, .fg = (color_t){0,0,0}, .print = ' '
+		.bg = (color_t){0,0,0}, .fg = (color_t){0,0,0}, .print = ' ',
+		.renderable = false
 	};
 }
 
 void add_fg(pixel_t* pixel, int r, int g, int b) {
 	if (is_color_invalid(r, g, b)) return;	
 	
+	pixel->renderable = true;
 	pixel->fg_null = false;
 	pixel->fg = (color_t){r, g, b};
 }
@@ -58,17 +68,20 @@ void add_fg(pixel_t* pixel, int r, int g, int b) {
 void add_bg(pixel_t* pixel, int r, int g, int b) {
 	if (is_color_invalid(r, g, b)) return;
 	
+	pixel->renderable = true;
 	pixel->bg_null = false;
 	pixel->bg = (color_t){r, g, b};
 }
 
 void set_print(pixel_t *pixel, char to_print) {
+	pixel->renderable = true;
 	pixel->print = to_print;
 }
 
 pixel_t p_add_fg(pixel_t pixel, int r, int g, int b) {
 	if (is_color_invalid(r, g, b)) return pixel;	
 	
+	pixel.renderable = true;
 	pixel.fg_null = false;
 	pixel.fg = (color_t){r, g, b};
 
@@ -78,6 +91,7 @@ pixel_t p_add_fg(pixel_t pixel, int r, int g, int b) {
 pixel_t p_add_bg(pixel_t pixel, int r, int g, int b) {
 	if (is_color_invalid(r, g, b)) return pixel;
 	
+	pixel.renderable = true;
 	pixel.bg_null = false;
 	pixel.bg = (color_t){r, g, b};
 
@@ -85,6 +99,7 @@ pixel_t p_add_bg(pixel_t pixel, int r, int g, int b) {
 }
 
 pixel_t p_set_print(pixel_t pixel, char to_print) {
+	pixel.renderable = true;
 	pixel.print = to_print;
 
 	return pixel;
@@ -101,17 +116,17 @@ void set_pixel(drawctx_t *ctx, pixel_t pixel) {
 	ctx->pixels[pixel.z * ctx->width + pixel.x] = pixel;
 }
 
-void get_pixel(const drawctx_t *ctx, pixel_t *out, int x, int z) {
+bool get_pixel(const drawctx_t *ctx, pixel_t *out, int x, int z) {
 	if (!ctx->initialized) goto setnullout;
 	if (x < 0 || z < 0 || x >= ctx->width || z >= ctx->height) goto setnullout;
 	
 	*out = ctx->pixels[z * ctx->width + x];
 
-	return;
+	return true;
 setnullout:
 	out = NULL;
 
-	return;
+	return false;
 }
 
 void get_pixel2(const drawctx_t *ctx, pixel_t *out, int pos) {
@@ -133,6 +148,9 @@ void flush_ctx(drawctx_t *ctx) {
 
 	for (size_t i = 0; i < ctx->width*ctx->height; i++) {
 		pixel_t p = ctx->pixels[i];
+		
+		if (!p.renderable) continue;
+
 		if(p.bg_null && p.fg_null) {
 			printf("\x1b[%d;%dH%c", p.z + 1, p.x + 1, p.print);
 		}
@@ -192,7 +210,7 @@ void ctx_over_ctx(drawctx_t *to_change, const drawctx_t overlay, int xo, int zo)
 			set_pixel(to_change, (pixel_t){
 				.x = x+xo, .z = z+zo, .print = p.print,
 				.bg_null = p.bg_null, .fg_null = p.fg_null,
-				.bg = p.bg, .fg = p.fg
+				.bg = p.bg, .fg = p.fg, .renderable = p.renderable
 			});
 		}
 	}
@@ -231,6 +249,31 @@ void ctx_sub_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo) 
             		}
 
 			set_pixel(to_change, dest_px);
+		}
+	}
+}
+
+void ctx_mask_ctx(drawctx_t *to_change, const drawctx_t mask, int xo, int zo) {
+	if(!to_change->initialized || !mask.initialized) return;
+
+	for (int x = 0; x < mask.width; ++x) {
+		for (int z = 0; z < mask.height; ++z) {
+			pixel_t p;
+			pixel_t p2;
+
+			get_pixel(&mask, &p, x, z);
+			bool res = get_pixel(to_change, &p2, x+xo, z+zo);
+			
+			if (!p.renderable) continue;
+			if (res) {
+				if (!(p2.renderable)) continue;
+			}
+
+			set_pixel(to_change, (pixel_t){
+				.x = x+xo, .z = z+zo, .print = p.print,
+				.bg_null = p.bg_null, .fg_null = p.fg_null,
+				.bg = p.bg, .fg = p.fg, .renderable = p.renderable
+			});
 		}
 	}
 }

@@ -17,6 +17,7 @@ struct {
 	color_t fg;
 	color_t bg;
 	char print;
+	bool renderable;
 	bool bg_null;
 	bool fg_null;
 } typedef pixel_t;
@@ -35,6 +36,8 @@ typedef void (*pixel_shader)(pixel_t*);
 drawctx_t* make_drawctx(int width, int height);
 
 void fill_background(drawctx_t* ctx);
+
+void fill_with(drawctx_t* ctx, color_t color, int xo, int zo, int xw, int zh);
 
 void free_drawctx(drawctx_t* ctx);
 
@@ -56,7 +59,7 @@ void free_pixel(pixel_t* pixel);
 
 void set_pixel(drawctx_t* ctx, pixel_t pixel);
 
-void get_pixel(const drawctx_t* ctx, pixel_t* out, int x, int z);
+bool get_pixel(const drawctx_t* ctx, pixel_t* out, int x, int z);
 
 void get_pixel2(const drawctx_t* ctx, pixel_t* out, int pos);
 
@@ -69,6 +72,8 @@ pixel_t copy_pixel(const pixel_t* source);
 void ctx_over_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
 
 void ctx_sub_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
+
+void ctx_mask_ctx(drawctx_t* to_change, const drawctx_t mask, int xo, int zo);
 
 void apply_ctx_shader(drawctx_t* changed_ctx, ctx_shader shader);
 
