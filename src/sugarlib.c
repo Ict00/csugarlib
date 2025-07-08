@@ -18,12 +18,108 @@ bool is_color_invalid(int r, int g, int b) {
 	return r < 0 || g < 0 || b < 0 || r > 255 || g > 255 || b > 255;
 }
 
+int get_str_length(const char *str) {
+	int result = 0;
+	for (int i = 0; str[i] != 0; ++i) { ++result; }
+
+	return result;
+}
+
+color_table_t make_color_table(size_t records) {
+	bound_color_t* table_content = (bound_color_t*)smalloc(sizeof(bound_color_t)*records);
+
+	return (color_table_t){.pixel_table=table_content, .table_size=records, .last_added=0};
+}
+
+void add_line(const char *line, sprite_t *target) {
+	int width = get_str_length(line);
+	int end_of_target = get_str_length(target->description);
+
+	char* new_ptr = malloc(sizeof(char)*(end_of_target+2+width));
+
+	memcpy(new_ptr, target->description, end_of_target);
+
+	free(target->description);	
+
+	target->description = new_ptr;
+
+	target->description[end_of_target] = 1;
+	
+	int b = 0;
+
+	for (int i = end_of_target+1; i < end_of_target+width; ++i) {
+		target->description[i] = line[b];
+		++b;
+	}
+
+	target->description[end_of_target+width] = 0;
+	target->width = width;
+	target->height += 1;
+}
+
+sprite_t make_sprite(color_table_t table) {
+	char* desc = malloc(0);
+
+	return (sprite_t){.height=0, .width=0, .bound_table=table, .description=desc};
+}
+
 drawctx_t* make_drawctx(int width, int height) {
 	drawctx_t* ctx = (drawctx_t*)smalloc(sizeof(drawctx_t));
 	ctx->initialized = true;
 	ctx->height = height;
 	ctx->width = width;
 	ctx->pixels = (pixel_t*)smalloc(sizeof(pixel_t)*height*width);
+	return ctx;
+}
+
+void add_record(color_table_t *table, char ch, color_t color) {
+	if (!table) return;
+	if (table->last_added + 1 >= table->table_size) return;
+
+	table->pixel_table[table->last_added+1] = (bound_color_t){.ch=ch, .color=color};
+	table->last_added += 1;
+}
+
+bool get_record(const color_table_t *table, char ch, color_t *out) {
+	if (!table) goto setnullout;
+	
+	for (int i = 0; i < table->table_size; ++i) {
+		if (table->pixel_table[i].ch == ch) {
+			*out = table->pixel_table[i].color;
+			return true;
+		}
+	}
+
+	goto setnullout;
+setnullout:
+	out = NULL;
+	return false;
+}
+
+drawctx_t* to_ctx(const sprite_t* source) {
+	drawctx_t* ctx = make_drawctx(source->width, source->height);
+	
+	fill_background(ctx);
+	int x = 0;
+	int z = 0;
+
+	for (int i = 0; source->description[i] != 0; ++i) {
+		if (source->description[i] == 1) {
+			x = 0;
+			z++;
+		}
+		if (source->description[i] >= 33) {
+			color_t pixel;
+
+			if (get_record(&source->bound_table, source->description[i], &pixel)) {
+				set_pixel(ctx, p_add_bg(make_pixel(x, z), pixel.r, pixel.g, pixel.b));
+			}
+		}
+		
+
+		++x;	
+	}	
+
 	return ctx;
 }
 

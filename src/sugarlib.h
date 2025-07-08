@@ -23,6 +23,25 @@ struct {
 } typedef pixel_t;
 
 struct {
+	char ch;
+	color_t color;
+} typedef bound_color_t;
+
+struct {
+	bound_color_t* pixel_table;
+	size_t table_size;
+	int last_added;
+
+} typedef color_table_t;
+
+struct {
+	char* description;
+	color_table_t bound_table;	
+	int width;
+	int height;
+} typedef sprite_t;
+
+struct {
 	pixel_t* pixels;
 	int width;  // X
 	int height; // Z
@@ -33,7 +52,21 @@ typedef void (*ctx_shader)(drawctx_t*);
 
 typedef void (*pixel_shader)(pixel_t*);
 
+int get_str_length(const char* str);
+
+color_table_t make_color_table(size_t records);
+
+void add_line(const char* line, sprite_t* target);
+
+sprite_t make_sprite(color_table_t table);
+
 drawctx_t* make_drawctx(int width, int height);
+
+void add_record(color_table_t* table, char ch, color_t color);
+
+bool get_record(const color_table_t* table, char ch, color_t* out);
+
+drawctx_t* to_ctx(const sprite_t* source);
 
 void fill_background(drawctx_t* ctx);
 
