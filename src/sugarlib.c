@@ -141,7 +141,7 @@ setnullout:
 	return false;
 }
 
-void flush_ctx(drawctx_t *ctx) {
+void flush_ctx(const drawctx_t *ctx) {
 	if (!ctx->initialized) return;
 	
 	size_t pos = 0;
@@ -170,6 +170,56 @@ void flush_ctx(drawctx_t *ctx) {
 					p.bg.r, p.bg.g, p.bg.b,
 					p.fg.r, p.fg.g, p.fg.b,
 					p.print);
+		}
+	}
+
+	fflush(stdout);
+}
+
+void flush_compact_ctx(const drawctx_t* ctx) {
+	if (!ctx->initialized) return;
+
+	for (int x = 0; x < ctx->width; ++x) {
+		int rz = 0;
+		for (int z = 0; z < ctx->height; z += 2) {
+			pixel_t a;
+			pixel_t b;
+
+			bool render_bg, render_fg;
+			render_bg = false; render_fg = false;
+
+			color_t bg, fg;
+
+			if (get_pixel(ctx, &a, x, z)) {
+				render_fg = !a.bg_null && a.renderable;
+				fg = a.bg;
+			}
+
+			if (get_pixel(ctx, &b, x, z+1)) {
+				render_bg = !b.bg_null && b.renderable;
+				bg = b.bg;
+			}
+			
+			if (render_bg || render_fg)
+				printf("\x1b[%d;%dH", rz, x);
+
+			if (render_bg && render_fg) {
+				printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm▀\x1b[0m",
+					fg.r, fg.g, fg.b,
+					bg.r, bg.g, bg.b);
+			}
+			else if (render_fg) {
+				printf("\x1b[38;2;%d;%d;%dm▀\x1b[0m",
+					fg.r, fg.g, fg.b);
+			}
+			else if (render_bg) {
+				printf("\x1b[38;2;%d;%d;%dm▄\x1b[0m",
+					bg.r, bg.g, bg.b);
+			}
+
+
+
+			++rz;
 		}
 	}
 

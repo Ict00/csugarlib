@@ -63,7 +63,9 @@ bool get_pixel(const drawctx_t* ctx, pixel_t* out, int x, int z);
 
 bool get_pixel2(const drawctx_t* ctx, pixel_t* out, int pos);
 
-void flush_ctx(drawctx_t* ctx);
+void flush_ctx(const drawctx_t* ctx);
+
+void flush_compact_ctx(const drawctx_t* ctx);
 
 drawctx_t* copy_ctx(const drawctx_t* source);
 
