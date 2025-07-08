@@ -61,7 +61,7 @@ void set_pixel(drawctx_t* ctx, pixel_t pixel);
 
 bool get_pixel(const drawctx_t* ctx, pixel_t* out, int x, int z);
 
-void get_pixel2(const drawctx_t* ctx, pixel_t* out, int pos);
+bool get_pixel2(const drawctx_t* ctx, pixel_t* out, int pos);
 
 void flush_ctx(drawctx_t* ctx);
 

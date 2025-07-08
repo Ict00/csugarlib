@@ -129,16 +129,16 @@ setnullout:
 	return false;
 }
 
-void get_pixel2(const drawctx_t *ctx, pixel_t *out, int pos) {
+bool get_pixel2(const drawctx_t *ctx, pixel_t *out, int pos) {
 	if (!ctx->initialized) goto setnullout;
 	if(pos < 0 || pos >= (ctx->height*ctx->width)) goto setnullout;
 
 	*out = ctx->pixels[pos];
 
-	return;
+	return true;
 setnullout:
 	out = NULL;
-	return;
+	return false;
 }
 
 void flush_ctx(drawctx_t *ctx) {
