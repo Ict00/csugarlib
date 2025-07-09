@@ -116,9 +116,6 @@ drawctx_t* to_ctx(const sprite_t* source) {
 	drawctx_t* ctx = make_drawctx(source->width, source->height);
 	
 	fill_background(ctx);
-	
-	//int _x = 0;
-	//int _z = 0;
 
 	for (int x = 0; x < source->width; ++x) {
 		for (int z = 0; z < source->height; ++z) {
