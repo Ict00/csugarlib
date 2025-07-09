@@ -345,6 +345,32 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 	fflush(stdout);
 }
 
+void flush_ctx_offset(const drawctx_t *ctx, int xo, int zo) {
+	if (!ctx->initialized) return;
+
+	drawctx_t* o = make_drawctx(ctx->width+xo, ctx->height+zo);
+	fill_background(o);
+
+	ctx_over_ctx(o, *ctx, xo, zo);
+	
+	flush_ctx(o);
+
+	free_drawctx(o);
+}
+
+void flush_compact_ctx_offset(const drawctx_t *ctx, int xo, int zo) {
+	if (!ctx->initialized) return;
+
+	drawctx_t* o = make_drawctx(ctx->width+xo, ctx->height+zo);
+	fill_background(o);
+
+	ctx_over_ctx(o, *ctx, xo, zo);
+	
+	flush_compact_ctx(o);
+
+	free_drawctx(o);
+}
+
 drawctx_t* copy_ctx(const drawctx_t *source) {
 	if (!source || !source->initialized) return NULL;
 

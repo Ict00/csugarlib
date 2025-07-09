@@ -102,6 +102,10 @@ void flush_ctx(const drawctx_t* ctx);
 
 void flush_compact_ctx(const drawctx_t* ctx);
 
+void flush_ctx_offset(const drawctx_t* ctx, int xo, int zo);
+
+void flush_compact_ctx_offset(const drawctx_t* ctx, int xo, int zo);
+
 drawctx_t* copy_ctx(const drawctx_t* source);
 
 pixel_t copy_pixel(const pixel_t* source);
