@@ -47,24 +47,27 @@ void add_line(const char *line, sprite_t *target) {
 	int width = get_str_length(line);
 	int end_of_target = get_str_length(target->description);
 
-	char* new_ptr = malloc(sizeof(char)*(end_of_target+2+width));
+	printf("%d", end_of_target);
 
-	memcpy(new_ptr, target->description, end_of_target);
+	char* newPtr = (char*)smalloc(sizeof(char)*(end_of_target+width-1));
 
-	free(target->description);	
+	memcpy(newPtr, target->description, sizeof(char)*end_of_target);
 
-	target->description = new_ptr;
-
-	target->description[end_of_target] = 1;
+	free(target->description);
+	
+	target->description = newPtr;
 	
 	int b = 0;
+	int i = end_of_target;
 
-	for (int i = end_of_target+1; i < end_of_target+width; ++i) {
+	for (; line[b] != 0; i++) {
 		target->description[i] = line[b];
-		++b;
+		b++;
 	}
 
-	target->description[end_of_target+width] = 0;
+	target->description[i] = 0;
+
+
 	target->width = width;
 	target->height += 1;
 }
@@ -72,8 +75,9 @@ void add_line(const char *line, sprite_t *target) {
 sprite_t make_sprite(color_table_t table) {
 	char* desc = malloc(0);
 
-	return (sprite_t){.height=0, .width=0, .bound_table=table, .description=desc};
+	return (sprite_t){.height=1, .width=0, .bound_table=table, .description=desc};
 }
+
 
 drawctx_t* make_drawctx(int width, int height) {
 	drawctx_t* ctx = (drawctx_t*)smalloc(sizeof(drawctx_t));
@@ -112,25 +116,21 @@ drawctx_t* to_ctx(const sprite_t* source) {
 	drawctx_t* ctx = make_drawctx(source->width, source->height);
 	
 	fill_background(ctx);
-	int x = 0;
-	int z = 0;
+	
+	//int _x = 0;
+	//int _z = 0;
 
-	for (int i = 0; source->description[i] != 0; ++i) {
-		if (source->description[i] == 1) {
-			x = 0;
-			z++;
-		}
-		if (source->description[i] >= 33) {
-			color_t pixel;
-
-			if (get_record(&source->bound_table, source->description[i], &pixel)) {
-				set_pixel(ctx, p_add_bg(make_pixel(x, z), pixel.r, pixel.g, pixel.b));
+	for (int x = 0; x < source->width; ++x) {
+		for (int z = 0; z < source->height; ++z) {
+			if (source->description[z * source->width + x] >= 33) {
+				color_t out;
+				
+				if (get_record(&source->bound_table, source->description[z * source->width + x], &out)) {
+					set_pixel(ctx, p_add_bg(make_pixel(x, z), out.r, out.g, out.b));
+				}
 			}
 		}
-		
-
-		++x;	
-	}	
+	}
 
 	return ctx;
 }
