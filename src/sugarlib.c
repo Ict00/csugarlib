@@ -25,6 +25,18 @@ int get_str_length(const char *str) {
 	return result;
 }
 
+bool str_eq(const char *a, const char *b) {
+	int al = get_str_length(a);
+	int bl = get_str_length(b);
+	if (al != bl) return false;
+
+	for (int i = 0; i < al; ++i) {
+		if (a[i] != b[i]) return false;
+	}
+
+	return true;
+}
+
 color_table_t make_color_table(size_t records) {
 	bound_color_t* table_content = (bound_color_t*)smalloc(sizeof(bound_color_t)*records);
 
@@ -278,6 +290,9 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 	for (int x = 0; x < ctx->width; ++x) {
 		int rz = 0;
 		for (int z = 0; z < ctx->height; z += 2) {
+			const char* placeholder = " ";
+			bool placeholder_changed = false;
+
 			pixel_t a;
 			pixel_t b;
 
@@ -288,6 +303,12 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 
 			if (get_pixel(ctx, &a, x, z)) {
 				render_fg = !a.bg_null && a.renderable;
+
+				if (!str_eq(a.print, " ")) {
+					placeholder = a.print;
+					placeholder_changed = true;
+				}
+
 				fg = a.bg;
 			}
 
@@ -300,13 +321,15 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 				printf("\x1b[%d;%dH", rz, x);
 
 			if (render_bg && render_fg) {
-				printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm▀\x1b[0m",
+				printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm%s\x1b[0m",
 					fg.r, fg.g, fg.b,
-					bg.r, bg.g, bg.b);
+					bg.r, bg.g, bg.b,
+					placeholder_changed ? placeholder : "▀");
 			}
 			else if (render_fg) {
-				printf("\x1b[38;2;%d;%d;%dm▀\x1b[0m",
-					fg.r, fg.g, fg.b);
+				printf("\x1b[38;2;%d;%d;%dm%s\x1b[0m",
+					fg.r, fg.g, fg.b,
+					placeholder_changed ? placeholder : "▀");
 			}
 			else if (render_bg) {
 				printf("\x1b[38;2;%d;%d;%dm▄\x1b[0m",
