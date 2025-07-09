@@ -318,7 +318,7 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 			}
 			
 			if (render_bg || render_fg)
-				printf("\x1b[%d;%dH", rz, x);
+				printf("\x1b[%d;%dH", rz + 1, x + 1);
 
 			if (render_bg && render_fg) {
 				printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm%s\x1b[0m",
