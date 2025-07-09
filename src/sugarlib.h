@@ -16,7 +16,7 @@ struct {
 	int z;
 	color_t fg;
 	color_t bg;
-	char print;
+	const char* print;
 	bool renderable;
 	bool bg_null;
 	bool fg_null;
@@ -80,13 +80,13 @@ pixel_t p_add_fg(pixel_t pixel, int r, int g, int b);
 
 pixel_t p_add_bg(pixel_t pixel, int r, int g, int b);
 
-pixel_t p_set_print(pixel_t pixel, char to_print);
+pixel_t p_set_print(pixel_t pixel, const char* to_print);
 
 void add_fg(pixel_t* pixel, int r, int g, int b);
 
 void add_bg(pixel_t* pixel, int r, int g, int b);
 
-void set_print(pixel_t* pixel, char to_print);
+void set_print(pixel_t* pixel, const char* to_print);
 
 void free_pixel(pixel_t* pixel);
 

@@ -148,7 +148,7 @@ void free_drawctx(drawctx_t *ctx) {
 pixel_t make_pixel(int x, int z) {
 	return (pixel_t){
 		.x = x, .z = z, .bg_null = true, .fg_null = true,
-		.bg = (color_t){0,0,0}, .fg = (color_t){0,0,0}, .print = ' ',
+		.bg = (color_t){0,0,0}, .fg = (color_t){0,0,0}, .print = " ",
 		.renderable = false
 	};
 }
@@ -169,7 +169,7 @@ void add_bg(pixel_t* pixel, int r, int g, int b) {
 	pixel->bg = (color_t){r, g, b};
 }
 
-void set_print(pixel_t *pixel, char to_print) {
+void set_print(pixel_t *pixel, const char* to_print) {
 	pixel->renderable = true;
 	pixel->print = to_print;
 }
@@ -194,7 +194,7 @@ pixel_t p_add_bg(pixel_t pixel, int r, int g, int b) {
 	return pixel;
 }
 
-pixel_t p_set_print(pixel_t pixel, char to_print) {
+pixel_t p_set_print(pixel_t pixel, const char* to_print) {
 	pixel.renderable = true;
 	pixel.print = to_print;
 
@@ -248,20 +248,20 @@ void flush_ctx(const drawctx_t *ctx) {
 		if (!p.renderable) continue;
 
 		if(p.bg_null && p.fg_null) {
-			printf("\x1b[%d;%dH%c", p.z + 1, p.x + 1, p.print);
+			printf("\x1b[%d;%dH%s", p.z + 1, p.x + 1, p.print);
 		}
 		else if(p.bg_null) {
-			printf("\x1b[%d;%dH\x1b[38;2;%d;%d;%dm%c\x1b[0m", p.z + 1, p.x + 1,
+			printf("\x1b[%d;%dH\x1b[38;2;%d;%d;%dm%s\x1b[0m", p.z + 1, p.x + 1,
 					p.fg.r, p.fg.g, p.fg.b,
 					p.print);
 		}
 		else if(p.fg_null) {
-			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm%c\x1b[0m", p.z + 1, p.x + 1, 
+			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm%s\x1b[0m", p.z + 1, p.x + 1, 
 					p.bg.r, p.bg.g, p.bg.b,
 					p.print);
 		}
 		else {
-			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm%c\x1b[0m",
+			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm%s\x1b[0m",
 					p.z + 1, p.x + 1,
 					p.bg.r, p.bg.g, p.bg.b,
 					p.fg.r, p.fg.g, p.fg.b,
