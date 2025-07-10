@@ -161,7 +161,7 @@ void add_bg(pixel_t* pixel, int r, int g, int b) {
 
 void set_print(pixel_t *pixel, const char* to_print) {
 	pixel->renderable = true;
-	pixel->print = to_print;
+	pixel->print = strdup(to_print);
 }
 
 pixel_t p_add_fg(pixel_t pixel, int r, int g, int b) {
@@ -186,7 +186,7 @@ pixel_t p_add_bg(pixel_t pixel, int r, int g, int b) {
 
 pixel_t p_set_print(pixel_t pixel, const char* to_print) {
 	pixel.renderable = true;
-	pixel.print = to_print;
+	pixel.print = strdup(to_print);
 
 	return pixel;
 }
