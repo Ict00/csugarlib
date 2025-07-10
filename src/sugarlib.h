@@ -52,10 +52,6 @@ typedef void (*ctx_shader)(drawctx_t*);
 
 typedef void (*pixel_shader)(pixel_t*);
 
-int get_str_length(const char* str);
-
-bool str_eq(const char* a, const char* b);
-
 color_table_t make_color_table(size_t records);
 
 void add_line(const char* line, sprite_t* target);

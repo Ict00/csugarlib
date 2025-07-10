@@ -18,25 +18,6 @@ bool is_color_invalid(int r, int g, int b) {
 	return r < 0 || g < 0 || b < 0 || r > 255 || g > 255 || b > 255;
 }
 
-int get_str_length(const char *str) {
-	int result = 0;
-	for (int i = 0; str[i] != 0; ++i) { ++result; }
-
-	return result;
-}
-
-bool str_eq(const char *a, const char *b) {
-	int al = get_str_length(a);
-	int bl = get_str_length(b);
-	if (al != bl) return false;
-
-	for (int i = 0; i < al; ++i) {
-		if (a[i] != b[i]) return false;
-	}
-
-	return true;
-}
-
 color_table_t make_color_table(size_t records) {
 	bound_color_t* table_content = (bound_color_t*)smalloc(sizeof(bound_color_t)*records);
 
@@ -44,8 +25,8 @@ color_table_t make_color_table(size_t records) {
 }
 
 void add_line(const char *line, sprite_t *target) {
-	int width = get_str_length(line);
-	int end_of_target = get_str_length(target->description);
+	int width = strlen(line);
+	int end_of_target = strlen(target->description);
 
 	printf("%d", end_of_target);
 
@@ -301,7 +282,7 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 			if (get_pixel(ctx, &a, x, z)) {
 				render_fg = !a.bg_null && a.renderable;
 
-				if (!str_eq(a.print, " ")) {
+				if (!(strcmp(a.print, " ")==0)) {
 					placeholder = a.print;
 					placeholder_changed = true;
 				}
