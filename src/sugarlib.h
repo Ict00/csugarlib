@@ -103,6 +103,10 @@ pixel_t p_add_bg(pixel_t pixel, int r, int g, int b);
 
 pixel_t p_set_print(pixel_t pixel, const char* to_print);
 
+pixel_t p_set_pos(pixel_t pixel, int x, int z);
+
+void set_pos(pixel_t* pixel, int x, int z);
+
 void add_fg(pixel_t* pixel, int r, int g, int b);
 
 void add_bg(pixel_t* pixel, int r, int g, int b);
@@ -134,6 +138,10 @@ void ctx_over_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo)
 void ctx_sub_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
 
 void ctx_mask_ctx(drawctx_t* to_change, const drawctx_t mask, int xo, int zo);
+
+drawctx_t* resize_ctx(drawctx_t* to_resize, int nx, int nz);
+
+drawctx_t* crop_ctx(drawctx_t* to_crop, int sx, int sz, int ex, int ez);
 
 void apply_ctx_shader(drawctx_t* changed_ctx, ctx_shader shader);
 

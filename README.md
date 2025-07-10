@@ -45,11 +45,13 @@ pixel_t make_pixel(int x, int z);  // Default: " ", no color, not renderable
 pixel_t p_add_fg(pixel_t p, int r, int g, int b);  
 pixel_t p_add_bg(pixel_t p, int r, int g, int b);  
 pixel_t p_set_print(pixel_t p, const char* to_print);
+pixel_t p_set_pos(pixel_t p, int x, int z);
 
 // In-place modifications  
 void add_fg(pixel_t* p, int r, int g, int b);  
 void add_bg(pixel_t* p, int r, int g, int b);  
 void set_print(pixel_t* p, const char* to_print);
+void set_print(pixel_t* p, int x, int z);
 ```
 
 #### Color Tables (for Sprites)
@@ -79,6 +81,8 @@ bool get_pixel2(const drawctx_t* ctx, pixel_t* out, int pos);  // By index (row-
 // Initialization & filling  
 void fill_background(drawctx_t* ctx);  // Reset all pixels  
 void fill_with(drawctx_t* ctx, color_t color, int xo, int zo, int xw, int zh);  // Fill rectangle  
+drawctx_t* resize_ctx(drawctx_t* to_resize, int nx, int nz); // Resize context to nx (new x) and nz
+drawctx_t* crop_ctx(drawctx_t* to_crop, int sx, int sz, int ex, int ez); // Crop the context; sx, sz - start x and z; ex, ez - end x and z
 void str_to_ctx(drawctx_t* ctx, const char* text, pixel_template_t p_template, bool line_wrapping, int xo, int zo); // Put text into context
 drawctx_t* copy_ctx(const drawctx_t* source);  // Deep copy
 ```

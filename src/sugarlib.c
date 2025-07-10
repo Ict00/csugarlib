@@ -189,6 +189,17 @@ void set_print(pixel_t *pixel, const char* to_print) {
 	pixel->print = strdup(to_print);
 }
 
+void set_pos(pixel_t *pixel, int x, int z) {
+	pixel->x = x;
+	pixel->z = z;
+}
+
+pixel_t p_set_pos(pixel_t pixel, int x, int z) {
+	pixel.x = x;
+	pixel.z = z;
+	return pixel;
+}
+
 pixel_t p_add_fg(pixel_t pixel, int r, int g, int b) {
 	if (is_color_invalid(r, g, b)) return pixel;	
 	
@@ -308,7 +319,7 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 				render_fg = !a.bg_null && a.renderable;
 
 				if (!(strcmp(a.print, " ")==0)) {
-					placeholder = a.print;
+					placeholder = strdup(a.print);
 					placeholder_changed = true;
 				}
 
@@ -379,9 +390,10 @@ drawctx_t* copy_ctx(const drawctx_t *source) {
 }
 
 pixel_t copy_pixel(const pixel_t *source) {
-	return p_set_print(
-		p_add_bg(
-		p_add_fg(make_pixel(source->x, source->z), source->fg.r, source->fg.g, source->fg.b), source->bg.r, source->bg.g, source->bg.b), source->print);
+	return (pixel_t){
+	.x = source->x, .z = source->z, .fg_null = source->fg_null, .bg_null = source->bg_null, .bg = (color_t){source->bg.r, source->bg.g, source->bg.b},
+	.fg = (color_t){source->fg.r, source->fg.g, source->fg.b}, .print = strdup(source->print), .renderable = source->renderable
+	};
 }
 
 void flush_aligned_ctx(drawctx_t* to_change, flush_ctx_f flush_func, alignment_t alignment, int screen_width, int screen_height) {
@@ -431,13 +443,12 @@ void ctx_over_ctx(drawctx_t *to_change, const drawctx_t overlay, int xo, int zo)
 		for (int z = 0; z < overlay.height; ++z) {
 			pixel_t p;
 
-			get_pixel(&overlay, &p, x, z);
-
-			set_pixel(to_change, (pixel_t){
+			if(get_pixel(&overlay, &p, x, z))
+				set_pixel(to_change, (pixel_t){
 				.x = x+xo, .z = z+zo, .print = p.print,
 				.bg_null = p.bg_null, .fg_null = p.fg_null,
 				.bg = p.bg, .fg = p.fg, .renderable = p.renderable
-			});
+				});
 		}
 	}
 }
@@ -502,6 +513,50 @@ void ctx_mask_ctx(drawctx_t *to_change, const drawctx_t mask, int xo, int zo) {
 			});
 		}
 	}
+}
+
+drawctx_t* resize_ctx(drawctx_t* to_resize, int nx, int nz) {
+	if (!to_resize->initialized) return NULL;
+
+	drawctx_t* resized = make_drawctx(nx, nz);
+	fill_background(resized);
+
+	int copy_width = (nx < to_resize->width) ? nx : to_resize->width;
+	int copy_height = (nz < to_resize->height) ? nz : to_resize->height;
+
+	for (int x = 0; x < copy_width; ++x) {
+		for (int z = 0; z < copy_height; ++z) {
+			pixel_t pix;
+			if (get_pixel(to_resize, &pix, x, z)) {
+				set_pixel(resized, pix);
+			}
+		}
+	}
+	return resized;
+}
+
+drawctx_t* crop_ctx(drawctx_t *to_crop, int sx, int sz, int ex, int ez) {
+	if (sx < 0 || sz < 0 || ex < 0 || ez < 0 || sx > ex || sz > ez || !to_crop || !to_crop->initialized) return NULL;
+	if (sx > to_crop->width || sz > to_crop->height || ex > to_crop->width || ez > to_crop->height) return NULL;
+
+	drawctx_t* cropped = make_drawctx(ex-sx,ez-sz);
+	int rx = 0;
+	int rz = 0;
+
+	for (int x = sx; x < ex; ++x) {
+		for (int z = sz; z < ez; ++z) {
+			pixel_t pix;
+
+			if(get_pixel(to_crop, &pix, x, z)) {
+				set_pixel(cropped, p_set_pos(copy_pixel(&pix), rx, rz));
+			}
+			rz++;
+		}
+		rz = 0;
+		rx++;
+	}
+
+	return cropped;
 }
 
 void apply_ctx_shader(drawctx_t *changed_ctx, ctx_shader shader) {
