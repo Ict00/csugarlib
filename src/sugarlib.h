@@ -23,6 +23,13 @@ struct {
 } typedef pixel_t;
 
 struct {
+	color_t fg;
+	color_t bg;
+	bool bg_null;
+	bool fg_null;
+} typedef pixel_template_t;
+
+struct {
 	char ch;
 	color_t color;
 } typedef bound_color_t;
@@ -83,6 +90,8 @@ drawctx_t* to_ctx(const sprite_t* source);
 void fill_background(drawctx_t* ctx);
 
 void fill_with(drawctx_t* ctx, color_t color, int xo, int zo, int xw, int zh);
+
+void str_to_ctx(drawctx_t* ctx, const char* text, pixel_template_t p_template, bool line_wrapping, int xo, int zo);
 
 void free_drawctx(drawctx_t* ctx);
 

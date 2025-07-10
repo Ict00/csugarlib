@@ -28,8 +28,6 @@ void add_line(const char *line, sprite_t *target) {
 	int width = strlen(line);
 	int end_of_target = strlen(target->description);
 
-	printf("%d", end_of_target);
-
 	char* newPtr = (char*)smalloc(sizeof(char)*(end_of_target+width-1));
 
 	memcpy(newPtr, target->description, sizeof(char)*end_of_target);
@@ -127,6 +125,31 @@ void fill_with(drawctx_t *ctx, color_t color, int xo, int zo, int xw, int zh) {
 			set_pixel(ctx, p_add_bg(make_pixel(x, z), color.r, color.g, color.b));
 		}
 	}
+}
+
+void str_to_ctx(drawctx_t *ctx, const char *text, pixel_template_t p_template, bool line_wrapping, int xo, int zo) {
+	int lx = xo;
+	int lz = zo;
+
+	for (int i = 0; text[i] != 0; ++i) {
+		if (line_wrapping && lx >= ctx->width) {
+			lx = xo;
+			lz++;
+		}
+		
+		if (!p_template.bg_null && !p_template.fg_null) {
+			set_pixel(ctx, p_add_fg(p_add_bg(p_set_print(make_pixel(lx, lz), (char[]){ text[i], '\0' }), p_template.bg.r, p_template.bg.g, p_template.bg.b), p_template.fg.r, p_template.fg.g, p_template.fg.b));
+		}
+		else if (!p_template.bg_null) {
+			set_pixel(ctx, p_add_bg(p_set_print(make_pixel(lx, lz), (char[]){ text[i], '\0' }), p_template.bg.r, p_template.bg.g, p_template.bg.b));
+		}
+		else if (!p_template.fg_null) {
+			set_pixel(ctx, p_add_fg(p_set_print(make_pixel(lx, lz), (char[]){ text[i], '\0' }), p_template.fg.r, p_template.fg.g, p_template.fg.b));
+		}
+
+		lx++;
+	}
+	
 }
 
 void free_drawctx(drawctx_t *ctx) {

@@ -19,15 +19,17 @@ or [GNOME Terminal](https://github.com/GNOME/gnome-terminal)).
 Just `#include "sugarlib.h"` in your project
 
 ### Core Types
-| Type          | Description                                    |
-|---------------|------------------------------------------------|
-| color_t       | 	RGB color (r, g, b: 0-255).                   |
-| pixel_t       | 	Terminal pixel (position, colors, character). |
-| color_table_t | 	Character-to-color lookup table.              |
-| sprite_t      | 	Text-based graphic (e.g., ASCII art).         |
-| drawctx_t     | 	Drawable context (pixel buffer).              |
-| ctx_shader    | 	Function pointer for context-wide effects.    |
-| pixel_shader  | 	Function pointer for per-pixel effects.       |
+| Type             | Description                                   |
+|------------------|-----------------------------------------------|
+| color_t          | RGB color (r, g, b: 0-255).                   |
+| pixel_t          | Terminal pixel (position, colors, character). |
+| color_table_t    | Character-to-color lookup table.              |
+| sprite_t         | Text-based graphic (e.g., ASCII art).         |
+| drawctx_t        | Drawable context (pixel buffer).              |
+| ctx_shader       | Function pointer for context-wide effects.    |
+| pixel_shader     | Function pointer for per-pixel effects.       |
+| flush_ctx_f      | Function pointer used for rendering.          |
+| pixel_template_t | Template for making pixels                    |
 ### API Reference
 
 #### Color Utilities
@@ -77,6 +79,7 @@ bool get_pixel2(const drawctx_t* ctx, pixel_t* out, int pos);  // By index (row-
 // Initialization & filling  
 void fill_background(drawctx_t* ctx);  // Reset all pixels  
 void fill_with(drawctx_t* ctx, color_t color, int xo, int zo, int xw, int zh);  // Fill rectangle  
+void str_to_ctx(drawctx_t* ctx, const char* text, pixel_template_t p_template, bool line_wrapping, int xo, int zo); // Put text into context
 drawctx_t* copy_ctx(const drawctx_t* source);  // Deep copy
 ```
 
