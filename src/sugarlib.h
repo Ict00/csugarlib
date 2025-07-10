@@ -48,9 +48,23 @@ struct {
 	bool initialized;
 } typedef drawctx_t;
 
+enum {
+	TOP_LEFT,
+	TOP,
+	TOP_RIGHT,
+	CENTER_LEFT,
+	CENTER,
+	CENTER_RIGHT,
+	BOTTOM_LEFT,
+	BOTTOM,
+	BOTTOM_RIGHT
+} typedef alignment_t;
+
 typedef void (*ctx_shader)(drawctx_t*);
 
 typedef void (*pixel_shader)(pixel_t*);
+
+typedef void (*flush_ctx_f)(const drawctx_t*);
 
 color_table_t make_color_table(size_t records);
 
@@ -98,13 +112,13 @@ void flush_ctx(const drawctx_t* ctx);
 
 void flush_compact_ctx(const drawctx_t* ctx);
 
-void flush_ctx_offset(const drawctx_t* ctx, int xo, int zo);
-
-void flush_compact_ctx_offset(const drawctx_t* ctx, int xo, int zo);
+void flush_ctx_offset(const drawctx_t* ctx, flush_ctx_f flush_func, int xo, int zo);
 
 drawctx_t* copy_ctx(const drawctx_t* source);
 
 pixel_t copy_pixel(const pixel_t* source);
+
+void flush_aligned_ctx(drawctx_t* to_change, flush_ctx_f flush_func, alignment_t alignment, int screen_width, int screen_height);
 
 void ctx_over_ctx(drawctx_t* to_change, const drawctx_t overlay, int xo, int zo);
 

@@ -84,9 +84,9 @@ drawctx_t* copy_ctx(const drawctx_t* source);  // Deep copy
 ```c
 // Render to terminal  
 void flush_ctx(const drawctx_t* ctx);                  // Full-color  
-void flush_compact_ctx(const drawctx_t* ctx);          // Compressed vertically (2:1)  
-void flush_ctx_offset(const drawctx_t* ctx, int xo, int zo);       // With offset  
-void flush_compact_ctx_offset(const drawctx_t* ctx, int xo, int zo);
+void flush_compact_ctx(const drawctx_t* ctx);          // Compressed vertically (2:1)
+void flush_ctx_offset(const drawctx_t* ctx, flush_ctx_f flush_func, int xo, int zo); // With offset
+void flush_aligned_ctx(drawctx_t* to_change, flush_ctx_f flush_func, alignment_t alignment, int screen_width, int screen_height); // With alignment
 ```
 
 #### Context Operations

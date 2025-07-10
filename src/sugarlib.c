@@ -323,28 +323,16 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 	fflush(stdout);
 }
 
-void flush_ctx_offset(const drawctx_t *ctx, int xo, int zo) {
+void flush_ctx_offset(const drawctx_t *ctx, flush_ctx_f flush_func, int xo, int zo) {
 	if (!ctx->initialized) return;
+	if (!flush_func) return;
 
 	drawctx_t* o = make_drawctx(ctx->width+xo, ctx->height+zo);
 	fill_background(o);
 
 	ctx_over_ctx(o, *ctx, xo, zo);
 	
-	flush_ctx(o);
-
-	free_drawctx(o);
-}
-
-void flush_compact_ctx_offset(const drawctx_t *ctx, int xo, int zo) {
-	if (!ctx->initialized) return;
-
-	drawctx_t* o = make_drawctx(ctx->width+xo, ctx->height+zo);
-	fill_background(o);
-
-	ctx_over_ctx(o, *ctx, xo, zo);
-	
-	flush_compact_ctx(o);
+	flush_func(o);
 
 	free_drawctx(o);
 }
@@ -369,6 +357,46 @@ pixel_t copy_pixel(const pixel_t *source) {
 	return p_set_print(
 		p_add_bg(
 		p_add_fg(make_pixel(source->x, source->z), source->fg.r, source->fg.g, source->fg.b), source->bg.r, source->bg.g, source->bg.b), source->print);
+}
+
+void flush_aligned_ctx(drawctx_t* to_change, flush_ctx_f flush_func, alignment_t alignment, int screen_width, int screen_height) {
+	int xo = 0;
+	int zo = 0;
+
+	switch (alignment) {
+		case TOP_LEFT:
+			break;
+		case TOP:
+			xo = (screen_width / 2) - (to_change->width / 2);
+			break;
+		case TOP_RIGHT:
+			xo = screen_width-to_change->width;
+			break;
+		case CENTER_LEFT:
+			zo = (screen_height / 2) - (to_change->height / 2);
+			break;
+		case CENTER:
+			zo = (screen_height / 2) - (to_change->height / 2);
+			xo = (screen_width / 2) - (to_change->width / 2);
+			break;
+		case CENTER_RIGHT:
+			zo = (screen_height / 2) - (to_change->height / 2);
+			xo = screen_width-to_change->width;
+			break;
+		case BOTTOM_LEFT:
+			zo = screen_height - to_change->height;
+			break;
+		case BOTTOM:
+			zo = screen_height - to_change->height;
+			xo = (screen_width / 2) - (to_change->height / 2);
+			break;
+		case BOTTOM_RIGHT:
+			zo = screen_height - to_change->height;
+			xo = screen_width - to_change->width;
+			break;
+	}
+
+	flush_ctx_offset(to_change, flush_func, xo, zo);
 }
 
 void ctx_over_ctx(drawctx_t *to_change, const drawctx_t overlay, int xo, int zo) {
