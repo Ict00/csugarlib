@@ -128,6 +128,8 @@ void fill_with(drawctx_t *ctx, color_t color, int xo, int zo, int xw, int zh) {
 }
 
 void str_to_ctx(drawctx_t *ctx, const char *text, pixel_template_t p_template, bool line_wrapping, int xo, int zo) {
+	if (!ctx->initialized || !text) return;
+
 	int lx = xo;
 	int lz = zo;
 
