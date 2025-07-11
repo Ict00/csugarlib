@@ -122,6 +122,8 @@ void fill_background(drawctx_t *ctx) {
 void fill_with(drawctx_t *ctx, color_t color, int xo, int zo, int xw, int zh) {
 	for (int x = xo; x < ctx->width && x < xw + xo; ++x) {
 		for (int z = zo; z < ctx->height && z < zh + zo; ++z) {
+			pixel_t tryGet;
+
 			set_pixel(ctx, p_add_bg(make_pixel(x, z), color.r, color.g, color.b));
 		}
 	}
@@ -140,13 +142,13 @@ void str_to_ctx(drawctx_t *ctx, const char *text, pixel_template_t p_template, b
 		}
 		
 		if (!p_template.bg_null && !p_template.fg_null) {
-			set_pixel(ctx, p_add_fg(p_add_bg(p_set_print(make_pixel(lx, lz), (char[]){ text[i], '\0' }), p_template.bg.r, p_template.bg.g, p_template.bg.b), p_template.fg.r, p_template.fg.g, p_template.fg.b));
+			set_pixel(ctx, p_add_fg(p_add_bg(p_set_print(make_pixel(lx, lz), text[i]), p_template.bg.r, p_template.bg.g, p_template.bg.b), p_template.fg.r, p_template.fg.g, p_template.fg.b));
 		}
 		else if (!p_template.bg_null) {
-			set_pixel(ctx, p_add_bg(p_set_print(make_pixel(lx, lz), (char[]){ text[i], '\0' }), p_template.bg.r, p_template.bg.g, p_template.bg.b));
+			set_pixel(ctx, p_add_bg(p_set_print(make_pixel(lx, lz), text[i]), p_template.bg.r, p_template.bg.g, p_template.bg.b));
 		}
 		else if (!p_template.fg_null) {
-			set_pixel(ctx, p_add_fg(p_set_print(make_pixel(lx, lz), (char[]){ text[i], '\0' }), p_template.fg.r, p_template.fg.g, p_template.fg.b));
+			set_pixel(ctx, p_add_fg(p_set_print(make_pixel(lx, lz), text[i]), p_template.fg.r, p_template.fg.g, p_template.fg.b));
 		}
 
 		lx++;
@@ -163,7 +165,7 @@ void free_drawctx(drawctx_t *ctx) {
 pixel_t make_pixel(int x, int z) {
 	return (pixel_t){
 		.x = x, .z = z, .bg_null = true, .fg_null = true,
-		.bg = (color_t){0,0,0}, .fg = (color_t){0,0,0}, .print = " ",
+		.bg = (color_t){0,0,0}, .fg = (color_t){0,0,0}, .print = ' ',
 		.renderable = false
 	};
 }
@@ -184,9 +186,9 @@ void add_bg(pixel_t* pixel, int r, int g, int b) {
 	pixel->bg = (color_t){r, g, b};
 }
 
-void set_print(pixel_t *pixel, const char* to_print) {
+void set_print(pixel_t *pixel, char to_print) {	
 	pixel->renderable = true;
-	pixel->print = strdup(to_print);
+	pixel->print = to_print;
 }
 
 void set_pos(pixel_t *pixel, int x, int z) {
@@ -220,9 +222,9 @@ pixel_t p_add_bg(pixel_t pixel, int r, int g, int b) {
 	return pixel;
 }
 
-pixel_t p_set_print(pixel_t pixel, const char* to_print) {
+pixel_t p_set_print(pixel_t pixel, char to_print) {
 	pixel.renderable = true;
-	pixel.print = strdup(to_print);
+	pixel.print = to_print;
 
 	return pixel;
 }
@@ -274,20 +276,20 @@ void flush_ctx(const drawctx_t *ctx) {
 		if (!p.renderable) continue;
 
 		if(p.bg_null && p.fg_null) {
-			printf("\x1b[%d;%dH%s", p.z + 1, p.x + 1, p.print);
+			printf("\x1b[%d;%dH%c", p.z + 1, p.x + 1, p.print);
 		}
 		else if(p.bg_null) {
-			printf("\x1b[%d;%dH\x1b[38;2;%d;%d;%dm%s\x1b[0m", p.z + 1, p.x + 1,
+			printf("\x1b[%d;%dH\x1b[38;2;%d;%d;%dm%c\x1b[0m", p.z + 1, p.x + 1,
 					p.fg.r, p.fg.g, p.fg.b,
 					p.print);
 		}
 		else if(p.fg_null) {
-			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm%s\x1b[0m", p.z + 1, p.x + 1, 
+			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm%c\x1b[0m", p.z + 1, p.x + 1, 
 					p.bg.r, p.bg.g, p.bg.b,
 					p.print);
 		}
 		else {
-			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm%s\x1b[0m",
+			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm%c\x1b[0m",
 					p.z + 1, p.x + 1,
 					p.bg.r, p.bg.g, p.bg.b,
 					p.fg.r, p.fg.g, p.fg.b,
@@ -304,7 +306,7 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 	for (int x = 0; x < ctx->width; ++x) {
 		int rz = 0;
 		for (int z = 0; z < ctx->height; z += 2) {
-			const char* placeholder = " ";
+			char placeholder = ' ';
 			bool placeholder_changed = false;
 
 			pixel_t a;
@@ -318,8 +320,8 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 			if (get_pixel(ctx, &a, x, z)) {
 				render_fg = !a.bg_null && a.renderable;
 
-				if (!(strcmp(a.print, " ")==0)) {
-					placeholder = strdup(a.print);
+				if (a.print != ' ') {
+					placeholder = a.print;
 					placeholder_changed = true;
 				}
 
@@ -338,12 +340,12 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 				printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm%s\x1b[0m",
 					fg.r, fg.g, fg.b,
 					bg.r, bg.g, bg.b,
-					placeholder_changed ? placeholder : "▀");
+					placeholder_changed ? (char[]) { placeholder, '\0' } : "▀");
 			}
 			else if (render_fg) {
 				printf("\x1b[38;2;%d;%d;%dm%s\x1b[0m",
 					fg.r, fg.g, fg.b,
-					placeholder_changed ? placeholder : "▀");
+					placeholder_changed ? (char[]) { placeholder, '\0' } : "▀");
 			}
 			else if (render_bg) {
 				printf("\x1b[38;2;%d;%d;%dm▄\x1b[0m",
@@ -392,7 +394,7 @@ drawctx_t* copy_ctx(const drawctx_t *source) {
 pixel_t copy_pixel(const pixel_t *source) {
 	return (pixel_t){
 	.x = source->x, .z = source->z, .fg_null = source->fg_null, .bg_null = source->bg_null, .bg = (color_t){source->bg.r, source->bg.g, source->bg.b},
-	.fg = (color_t){source->fg.r, source->fg.g, source->fg.b}, .print = strdup(source->print), .renderable = source->renderable
+	.fg = (color_t){source->fg.r, source->fg.g, source->fg.b}, .print = source->print, .renderable = source->renderable
 	};
 }
 
@@ -528,7 +530,7 @@ drawctx_t* resize_ctx(drawctx_t* to_resize, int nx, int nz) {
 		for (int z = 0; z < copy_height; ++z) {
 			pixel_t pix;
 			if (get_pixel(to_resize, &pix, x, z)) {
-				set_pixel(resized, pix);
+				set_pixel(resized, copy_pixel(&pix));
 			}
 		}
 	}

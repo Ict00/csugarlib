@@ -44,13 +44,13 @@ pixel_t make_pixel(int x, int z);  // Default: " ", no color, not renderable
 // Functional style (return modified copy)  
 pixel_t p_add_fg(pixel_t p, int r, int g, int b);  
 pixel_t p_add_bg(pixel_t p, int r, int g, int b);  
-pixel_t p_set_print(pixel_t p, const char* to_print);
+pixel_t p_set_print(pixel_t p, char to_print);
 pixel_t p_set_pos(pixel_t p, int x, int z);
 
 // In-place modifications  
 void add_fg(pixel_t* p, int r, int g, int b);  
 void add_bg(pixel_t* p, int r, int g, int b);  
-void set_print(pixel_t* p, const char* to_print);
+void set_print(pixel_t* p, char to_print);
 void set_print(pixel_t* p, int x, int z);
 ```
 
