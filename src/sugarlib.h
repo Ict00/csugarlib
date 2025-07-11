@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <wchar.h>
 
 void* smalloc(const size_t bytes);
 
@@ -16,7 +17,7 @@ struct {
 	int z;
 	color_t fg;
 	color_t bg;
-	char print;
+	wchar_t print;
 	bool renderable;
 	bool bg_null;
 	bool fg_null;
@@ -91,7 +92,7 @@ void fill_background(drawctx_t* ctx);
 
 void fill_with(drawctx_t* ctx, color_t color, int xo, int zo, int xw, int zh);
 
-void str_to_ctx(drawctx_t* ctx, const char* text, pixel_template_t p_template, bool line_wrapping, int xo, int zo);
+void str_to_ctx(drawctx_t* ctx, const wchar_t* text, pixel_template_t p_template, bool line_wrapping, int xo, int zo);
 
 void free_drawctx(drawctx_t* ctx);
 
@@ -101,7 +102,7 @@ pixel_t p_add_fg(pixel_t pixel, int r, int g, int b);
 
 pixel_t p_add_bg(pixel_t pixel, int r, int g, int b);
 
-pixel_t p_set_print(pixel_t pixel, char to_print);
+pixel_t p_set_print(pixel_t pixel, wchar_t to_print);
 
 pixel_t p_set_pos(pixel_t pixel, int x, int z);
 
@@ -111,7 +112,7 @@ void add_fg(pixel_t* pixel, int r, int g, int b);
 
 void add_bg(pixel_t* pixel, int r, int g, int b);
 
-void set_print(pixel_t* pixel, char to_print);
+void set_print(pixel_t* pixel, wchar_t to_print);
 
 void free_pixel(pixel_t* pixel);
 

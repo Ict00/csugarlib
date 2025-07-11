@@ -129,7 +129,7 @@ void fill_with(drawctx_t *ctx, color_t color, int xo, int zo, int xw, int zh) {
 	}
 }
 
-void str_to_ctx(drawctx_t *ctx, const char *text, pixel_template_t p_template, bool line_wrapping, int xo, int zo) {
+void str_to_ctx(drawctx_t *ctx, const wchar_t *text, pixel_template_t p_template, bool line_wrapping, int xo, int zo) {
 	if (!ctx->initialized || !text) return;
 
 	int lx = xo;
@@ -186,7 +186,7 @@ void add_bg(pixel_t* pixel, int r, int g, int b) {
 	pixel->bg = (color_t){r, g, b};
 }
 
-void set_print(pixel_t *pixel, char to_print) {	
+void set_print(pixel_t *pixel, wchar_t to_print) {	
 	pixel->renderable = true;
 	pixel->print = to_print;
 }
@@ -222,7 +222,7 @@ pixel_t p_add_bg(pixel_t pixel, int r, int g, int b) {
 	return pixel;
 }
 
-pixel_t p_set_print(pixel_t pixel, char to_print) {
+pixel_t p_set_print(pixel_t pixel, wchar_t to_print) {
 	pixel.renderable = true;
 	pixel.print = to_print;
 
@@ -279,17 +279,17 @@ void flush_ctx(const drawctx_t *ctx) {
 			printf("\x1b[%d;%dH%c", p.z + 1, p.x + 1, p.print);
 		}
 		else if(p.bg_null) {
-			printf("\x1b[%d;%dH\x1b[38;2;%d;%d;%dm%c\x1b[0m", p.z + 1, p.x + 1,
+			printf("\x1b[%d;%dH\x1b[38;2;%d;%d;%dm%lc\x1b[0m", p.z + 1, p.x + 1,
 					p.fg.r, p.fg.g, p.fg.b,
 					p.print);
 		}
 		else if(p.fg_null) {
-			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm%c\x1b[0m", p.z + 1, p.x + 1, 
+			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm%lc\x1b[0m", p.z + 1, p.x + 1, 
 					p.bg.r, p.bg.g, p.bg.b,
 					p.print);
 		}
 		else {
-			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm%c\x1b[0m",
+			printf("\x1b[%d;%dH\x1b[48;2;%d;%d;%dm\x1b[38;2;%d;%d;%dm%lc\x1b[0m",
 					p.z + 1, p.x + 1,
 					p.bg.r, p.bg.g, p.bg.b,
 					p.fg.r, p.fg.g, p.fg.b,
@@ -306,7 +306,7 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 	for (int x = 0; x < ctx->width; ++x) {
 		int rz = 0;
 		for (int z = 0; z < ctx->height; z += 2) {
-			char placeholder = ' ';
+			wchar_t placeholder = ' ';
 			bool placeholder_changed = false;
 
 			pixel_t a;
@@ -337,15 +337,15 @@ void flush_compact_ctx(const drawctx_t* ctx) {
 				printf("\x1b[%d;%dH", rz + 1, x + 1);
 
 			if (render_bg && render_fg) {
-				printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm%s\x1b[0m",
+				printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm%lc\x1b[0m",
 					fg.r, fg.g, fg.b,
 					bg.r, bg.g, bg.b,
-					placeholder_changed ? (char[]) { placeholder, '\0' } : "▀");
+					placeholder_changed ? placeholder : L'▀');
 			}
 			else if (render_fg) {
-				printf("\x1b[38;2;%d;%d;%dm%s\x1b[0m",
+				printf("\x1b[38;2;%d;%d;%dm%lc\x1b[0m",
 					fg.r, fg.g, fg.b,
-					placeholder_changed ? (char[]) { placeholder, '\0' } : "▀");
+					placeholder_changed ? placeholder : L'▀');
 			}
 			else if (render_bg) {
 				printf("\x1b[38;2;%d;%d;%dm▄\x1b[0m",
