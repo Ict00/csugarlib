@@ -24,13 +24,13 @@ color_table_t make_color_table(size_t records) {
 	return (color_table_t){.pixel_table=table_content, .table_size=records, .last_added=0};
 }
 
-void add_line(const char *line, sprite_t *target) {
-	int width = strlen(line);
-	int end_of_target = strlen(target->description);
+void add_line(const wchar_t *line, sprite_t *target) {
+	int width = wcslen(line);
+	int end_of_target = wcslen(target->description);
 
-	char* newPtr = (char*)smalloc(sizeof(char)*(end_of_target+width-1));
+	wchar_t* newPtr = (wchar_t*)smalloc(sizeof(wchar_t)*(end_of_target+width-1));
 
-	memcpy(newPtr, target->description, sizeof(char)*end_of_target);
+	memcpy(newPtr, target->description, sizeof(wchar_t)*end_of_target);
 
 	free(target->description);
 	
@@ -52,7 +52,7 @@ void add_line(const char *line, sprite_t *target) {
 }
 
 sprite_t make_sprite(color_table_t table) {
-	char* desc = malloc(0);
+	wchar_t* desc = malloc(0);
 
 	return (sprite_t){.height=1, .width=0, .bound_table=table, .description=desc};
 }
@@ -67,7 +67,7 @@ drawctx_t* make_drawctx(int width, int height) {
 	return ctx;
 }
 
-void add_record(color_table_t *table, char ch, color_t color) {
+void add_record(color_table_t *table, wchar_t ch, color_t color) {
 	if (!table) return;
 	if (table->last_added + 1 >= table->table_size) return;
 
@@ -75,7 +75,7 @@ void add_record(color_table_t *table, char ch, color_t color) {
 	table->last_added += 1;
 }
 
-bool get_record(const color_table_t *table, char ch, color_t *out) {
+bool get_record(const color_table_t *table, wchar_t ch, color_t *out) {
 	if (!table) goto setnullout;
 	
 	for (int i = 0; i < table->table_size; ++i) {

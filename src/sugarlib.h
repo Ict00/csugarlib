@@ -31,7 +31,7 @@ struct {
 } typedef pixel_template_t;
 
 struct {
-	char ch;
+	wchar_t ch;
 	color_t color;
 } typedef bound_color_t;
 
@@ -43,7 +43,7 @@ struct {
 } typedef color_table_t;
 
 struct {
-	char* description;
+	wchar_t* description;
 	color_table_t bound_table;	
 	int width;
 	int height;
@@ -76,15 +76,15 @@ typedef void (*flush_ctx_f)(const drawctx_t*);
 
 color_table_t make_color_table(size_t records);
 
-void add_line(const char* line, sprite_t* target);
+void add_line(const wchar_t* line, sprite_t* target);
 
 sprite_t make_sprite(color_table_t table);
 
 drawctx_t* make_drawctx(int width, int height);
 
-void add_record(color_table_t* table, char ch, color_t color);
+void add_record(color_table_t* table, wchar_t ch, color_t color);
 
-bool get_record(const color_table_t* table, char ch, color_t* out);
+bool get_record(const color_table_t* table, wchar_t ch, color_t* out);
 
 drawctx_t* to_ctx(const sprite_t* source);
 
