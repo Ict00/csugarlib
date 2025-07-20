@@ -98,10 +98,10 @@ drawctx_t* to_ctx(const sprite_t* source) {
 
 	for (int x = 0; x < source->width; ++x) {
 		for (int z = 0; z < source->height; ++z) {
-			if (source->description[z * source->width + x] >= 33) {
+			if (source->description[z * source->width + x + LOCALE_OFFSET] >= 33) {
 				color_t out;
 				
-				if (get_record(&source->bound_table, source->description[z * source->width + x], &out)) {
+				if (get_record(&source->bound_table, source->description[z * source->width + x + LOCALE_OFFSET], &out)) {
 					set_pixel(ctx, p_add_bg(make_pixel(x, z), out.r, out.g, out.b));
 				}
 			}

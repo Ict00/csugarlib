@@ -4,6 +4,11 @@
 #include <stdbool.h>
 #include <wchar.h>
 
+// LC_ALL  = 4
+// DEFAULT = 0
+
+#define LOCALE_OFFSET 0
+
 void* smalloc(const size_t bytes);
 
 bool is_color_invalid(int r, int g, int b);
